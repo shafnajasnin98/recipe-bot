@@ -15,7 +15,7 @@ recipes = {
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# CSS
+# --- CSS for WhatsApp-style chat ---
 st.markdown("""
 <style>
 .chat-card {
@@ -31,7 +31,6 @@ st.markdown("""
     height: 70vh;
     overflow: hidden;
 }
-
 .chat-header {
     font-weight: bold;
     font-size: 20px;
@@ -41,13 +40,11 @@ st.markdown("""
     text-align: center;
     border-radius: 15px 15px 0 0;
 }
-
 .chat-messages {
     flex: 1;
     overflow-y: auto;
     padding: 10px;
 }
-
 .bubble-user {
     background-color:#25D366; 
     color:white; 
@@ -60,7 +57,6 @@ st.markdown("""
     clear:both;
     word-wrap: break-word;
 }
-
 .bubble-bot {
     background-color:#ECE5DD; 
     color:black; 
@@ -73,21 +69,12 @@ st.markdown("""
     clear:both;
     word-wrap: break-word;
 }
-
-.input-bar {
-    display: flex;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-top: 1px solid #ccc;
-}
-
 input[type=text] {
     flex: 1;
     padding: 10px 15px;
     border-radius: 25px;
     border: 1px solid #ccc;
 }
-
 .send-arrow {
     background-color: #25D366;
     border: none;
@@ -99,7 +86,6 @@ input[type=text] {
     margin-left: 10px;
     cursor: pointer;
 }
-
 .typing {
     color: gray;
     font-style: italic;
@@ -108,15 +94,11 @@ input[type=text] {
 </style>
 """, unsafe_allow_html=True)
 
-# --- Chat Card as Streamlit container ---
+# --- Chat Card ---
 with st.container():
-    # Header first
     st.markdown('<div class="chat-header">Recipe Bot 🍳</div>', unsafe_allow_html=True)
-
-    # Messages placeholder
     messages_placeholder = st.empty()
     typing_placeholder = st.empty()
-
 
     def display_messages():
         with messages_placeholder.container():
@@ -127,14 +109,13 @@ with st.container():
                 else:
                     st.markdown(f'<div class="bubble-bot">{msg}</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
-        # scroll
+        # scroll to bottom
         st.markdown("""
             <script>
             var chatBox = document.getElementById('messages');
             if(chatBox){ chatBox.scrollTop = chatBox.scrollHeight; }
             </script>
         """, unsafe_allow_html=True)
-
 
     def send_message():
         msg = st.session_state.user_input.strip()
@@ -148,22 +129,26 @@ with st.container():
             typing_placeholder.empty()
 
             matched_category = next((k for k in recipes if k in msg.lower()), None)
-            bot_response = random.choice(
-                recipes[matched_category]) if matched_category else "Sorry, no recipes found 😅"
+            bot_response = random.choice(recipes[matched_category]) if matched_category else "Sorry, no recipes found 😅"
             st.session_state.chat_history.append(("bot", bot_response))
             display_messages()
 
-
     display_messages()
 
-    # Input bar (inside container, after header and messages)
+    # --- Input bar ---
     input_col1, input_col2 = st.columns([0.85, 0.15])
+    # with input_col1:
+    #     st.text_input("Enter your ingredient...", key="user_input")
+    # with input_col2:
+    #     st.button("➡️", key="arrow_send", on_click=send_message)
+    #
+    # st.markdown('</div>', unsafe_allow_html=True)
     with input_col1:
-        st.text_input("", placeholder="Type a message...", key="user_input", on_change=send_message)
+        st.text_input("", placeholder="Enter your ingredient, AI will suggest recipe instructions", key="user_input")
     with input_col2:
         st.button("➡️", key="arrow_send", on_click=send_message)
 
-# Clear chat button
+# Clear chat
 if st.button("Clear Chat"):
     st.session_state.chat_history = []
     st.experimental_rerun()
