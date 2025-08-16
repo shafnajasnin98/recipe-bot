@@ -1,0 +1,7 @@
+{
+    "pasta": ["Spaghetti Carbonara", "Penne Arrabiata", "Fettuccine Alfredo"],
+    "chicken": ["Grilled Chicken", "Chicken Curry", "Chicken Stir Fry"],
+    "egg": ["Omelette", "Egg Curry", "Scrambled Eggs"],
+    "rice": ["Fried Rice", "Rice Pulao", "Vegetable Biryani"],
+    "veg": ["Veg Stir Fry", "Vegetable Soup", "Salad"]
+}
