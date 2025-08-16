@@ -1,19 +1,23 @@
 import streamlit as st
 import random
 import time
-
+import json
 st.set_page_config(page_title="Recipe Bot 🍳", layout="wide")
 
-recipes = {
-    "pasta": ["Spaghetti Carbonara", "Penne Arrabiata", "Fettuccine Alfredo"],
-    "chicken": ["Grilled Chicken", "Chicken Curry", "Chicken Stir Fry"],
-    "egg": ["Omelette", "Egg Curry", "Scrambled Eggs"],
-    "rice": ["Fried Rice", "Rice Pulao", "Vegetable Biryani"],
-    "veg": ["Veg Stir Fry", "Vegetable Soup", "Salad"]
-}
+# recipes = {
+#     "pasta": ["Spaghetti Carbonara", "Penne Arrabiata", "Fettuccine Alfredo"],
+#     "chicken": ["Grilled Chicken", "Chicken Curry", "Chicken Stir Fry"],
+#     "egg": ["Omelette", "Egg Curry", "Scrambled Eggs"],
+#     "rice": ["Fried Rice", "Rice Pulao", "Vegetable Biryani"],
+#     "veg": ["Veg Stir Fry", "Vegetable Soup", "Salad"]
+# }
+with open("recipe.json", "r") as f:
+    recipes = json.load(f)
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+    if "current_msg" not in st.session_state:
+        st.session_state.current_msg = ""
 
 # --- CSS for WhatsApp-style chat ---
 st.markdown("""
@@ -117,11 +121,30 @@ with st.container():
             </script>
         """, unsafe_allow_html=True)
 
+
+    # def send_message():
+    #     msg = st.session_state.user_input.strip()
+    #     if msg:
+    #         st.session_state.current_msg = msg
+    #         st.session_state.chat_history.append(("user", msg))
+    #         st.session_state.user_input = ""
+    #         display_messages()
+    #
+    #         typing_placeholder.markdown('<div class="typing">Bot is typing...</div>', unsafe_allow_html=True)
+    #         time.sleep(1)
+    #         typing_placeholder.empty()
+    #
+    #         matched_category = next((k for k in recipes if k in msg.lower()), None)
+    #         bot_response = random.choice(
+    #             recipes[matched_category]) if matched_category else "Sorry, no recipes found 😅"
+    #         st.session_state.chat_history.append(("bot", bot_response))
+    #         display_messages()
     def send_message():
         msg = st.session_state.user_input.strip()
         if msg:
+            st.session_state.current_msg = msg
             st.session_state.chat_history.append(("user", msg))
-            st.session_state.user_input = ""
+            st.session_state.user_input = ""  # clear input
             display_messages()
 
             typing_placeholder.markdown('<div class="typing">Bot is typing...</div>', unsafe_allow_html=True)
@@ -129,7 +152,8 @@ with st.container():
             typing_placeholder.empty()
 
             matched_category = next((k for k in recipes if k in msg.lower()), None)
-            bot_response = random.choice(recipes[matched_category]) if matched_category else "Sorry, no recipes found 😅"
+            bot_response = random.choice(
+                recipes[matched_category]) if matched_category else "Sorry, no recipes found 😅"
             st.session_state.chat_history.append(("bot", bot_response))
             display_messages()
 
@@ -137,18 +161,21 @@ with st.container():
 
     # --- Input bar ---
     input_col1, input_col2 = st.columns([0.85, 0.15])
-    # with input_col1:
-    #     st.text_input("Enter your ingredient...", key="user_input")
-    # with input_col2:
-    #     st.button("➡️", key="arrow_send", on_click=send_message)
-    #
-    # st.markdown('</div>', unsafe_allow_html=True)
+
     with input_col1:
-        st.text_input("", placeholder="Enter your ingredient, AI will suggest recipe instructions", key="user_input")
+        st.text_input(
+            "Ingredient input",
+            placeholder="Enter your ingredient, AI will suggest recipe instructions",
+            key="user_input",
+            label_visibility="hidden",
+            # triggers when user presses Enter
+        )
+
     with input_col2:
         st.button("➡️", key="arrow_send", on_click=send_message)
-
+st.markdown('</div>', unsafe_allow_html=True)
 # Clear chat
 if st.button("Clear Chat"):
     st.session_state.chat_history = []
+    st.session_state.current_msg = ""
     st.experimental_rerun()
